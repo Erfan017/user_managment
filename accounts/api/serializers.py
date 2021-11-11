@@ -163,7 +163,7 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'user_access', 'date_joined', 'is_active']
+        fields = ['pk'',username', 'user_access', 'date_joined', 'is_active']
 
 
 class UserProfileSerializer(serializers.ModelSerializer):

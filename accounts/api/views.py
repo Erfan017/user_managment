@@ -1,3 +1,4 @@
+from rest_framework.exceptions import PermissionDenied
 from django.contrib.auth import get_user_model, get_user
 from django.contrib.sites.shortcuts import get_current_site
 from rest_framework import generics, permissions, status, views
@@ -111,11 +112,11 @@ class UserProfileAPIView(generics.RetrieveAPIView):
         return self.request.user
 
 
-class UserModify(generics.api_settings):
+class UserModify(generics.UpdateAPIView):
     pass
 
 
-class UserList(generics.ListCreateAPIView):
+class UserList(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (TokenAuthentication,)
     queryset = User.objects.all()
@@ -126,4 +127,15 @@ class UserList(generics.ListCreateAPIView):
         if user.user_access == 1:
             return self.list(request, *args, **kwargs)
         else:
-            raise Exception()
+            raise PermissionDenied()
+
+
+class UserDelete(generics.DestroyAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = serializers.UserSerializer
+    authentication_classes = (TokenAuthentication,)
+    queryset = User.objects.all()
+
+
+class UserLogout(generics.GenericAPIView):
+    pass
