@@ -26,9 +26,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         style={'input_type': 'password'}
     )
 
+    user_access = serializers.IntegerField(required=False, default=4, min_value=1, max_value=4)
+
     class Meta(object):
         model = User
-        fields = ['username', 'password', 'password_2']
+        fields = ['username', 'password', 'password_2', 'user_access']
 
     def validate_password(self, value):
         if len(value) < getattr(settings, 'PASSWORD_MIN_LENGTH', 8):
@@ -53,7 +55,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
         user_data = {
             'username': validated_data.get('username'),
-            'password': validated_data.get('password')
+            'password': validated_data.get('password'),
+            'user_access': validated_data.get('user_access')
         }
 
         user = UserProfile.objects.create_user_profile(
@@ -158,11 +161,9 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    # team = TeamSerializer(many=True)
-
     class Meta:
         model = User
-        fields = ['email', 'first_name', 'last_name', 'team']
+        fields = ['username', 'timestamp_created']
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -170,4 +171,4 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ['user', 'has_email_verified']
+        fields = ['user']

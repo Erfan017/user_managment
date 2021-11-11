@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.sites.shortcuts import get_current_site
 from rest_framework import generics, permissions, status, views
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
 from accounts.models import UserProfile
@@ -103,7 +104,18 @@ class UserProfileAPIView(generics.RetrieveAPIView):
 
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (TokenAuthentication,)
-    serializer_class = serializers.UserProfileSerializer
+    lookup_field = "username"
+    queryset = User.objects.all()
+    # serializer_class = serializers.UserProfileSerializer
+    # def get_object(self):
+    #     return self.request.user.userprofile
 
-    def get_object(self):
-        return self.request.user.userprofile
+
+class UserModify(generics.api_settings):
+    pass
+
+
+# class UserList(generics.ListCreateAPIView):
+#     queryset = User.objects.all()
+#     serializer_class = UserSerializer
+#     permission_classes = [IsAdminUser]

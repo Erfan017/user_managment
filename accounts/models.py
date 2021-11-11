@@ -2,6 +2,7 @@ import re
 import hashlib
 import datetime
 
+from django.contrib.auth.models import AbstractUser, PermissionsMixin, AbstractBaseUser
 from django.conf import settings
 from django.db import models, transaction
 from django.contrib.auth import get_user_model
@@ -14,8 +15,6 @@ from django.contrib.auth.tokens import default_token_generator
 
 from base import utils as base_utils
 from base import models as base_models
-
-User = get_user_model()
 
 token_generator = default_token_generator
 
@@ -48,23 +47,23 @@ class UserProfileRegistrationManager(models.Manager):
 
         return user
 
-    def create_profile(self, user):
-        """
-        Create UserProfile for give user.
-        Returns created user profile on success.
-
-        """
-
-        username = str(getattr(user, User.USERNAME_FIELD))
-        hash_input = (get_random_string(5) + username).encode('utf-8')
-        verification_key = hashlib.sha1(hash_input).hexdigest()
-
-        profile = self.create(
-            user=user,
-            verification_key=verification_key
-        )
-
-        return profile
+    # def create_profile(self, user):
+    #     """
+    #     Create UserProfile for give user.
+    #     Returns created user profile on success.
+    #
+    #     """
+    #
+    #     username = str(getattr(user, User.USERNAME_FIELD))
+    #     hash_input = (get_random_string(5) + username).encode('utf-8')
+    #     verification_key = hashlib.sha1(hash_input).hexdigest()
+    #
+    #     profile = self.create(
+    #         user=user,
+    #         verification_key=verification_key
+    #     )
+    #
+    #     return profile
 
     def expired(self):
         """
@@ -115,3 +114,7 @@ class UserProfile(base_models.TimeStampedModel):
 
     def __str__(self):
         return str(self.user)
+
+
+class User(AbstractUser):
+    user_access = models.IntegerField(default=4)
