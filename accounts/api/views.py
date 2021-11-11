@@ -16,27 +16,9 @@ class UserRegistrationAPIView(generics.CreateAPIView):
 
     """
 
-    permission_classes = (permissions.AllowAny, )
+    permission_classes = (permissions.AllowAny,)
     serializer_class = serializers.UserRegistrationSerializer
     queryset = User.objects.all()
-
-
-class UserEmailVerificationAPIView(views.APIView):
-    """
-    Endpoint for verifying email address.
-
-    """
-
-    permission_classes = (permissions.AllowAny, )
-
-    def get(self, request, verification_key):
-        activated_user = self.activate(verification_key)
-        if activated_user:
-            return Response(status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-    def activate(self, verification_key):
-        return UserProfile.objects.activate_user(verification_key)
 
 
 class UserLoginAPIView(views.APIView):
@@ -45,7 +27,7 @@ class UserLoginAPIView(views.APIView):
 
     """
 
-    permission_classes = (permissions.AllowAny, )
+    permission_classes = (permissions.AllowAny,)
     serializer_class = serializers.UserLoginSerializer
 
     def post(self, request):
@@ -62,7 +44,7 @@ class PasswordResetAPIView(views.APIView):
 
     """
 
-    permission_classes = (permissions.AllowAny, )
+    permission_classes = (permissions.AllowAny,)
     serializer_class = serializers.PasswordResetSerializer
 
     def post(self, request):
@@ -91,11 +73,10 @@ class PasswordResetConfirmView(views.APIView):
 
     """
 
-    permission_classes = (permissions.AllowAny, )
+    permission_classes = (permissions.AllowAny,)
     serializer_class = serializers.PasswordResetConfirmSerializer
 
     def post(self, request, *args, **kwargs):
-
         serializer = self.serializer_class(
             data=request.data,
             context={
@@ -119,10 +100,9 @@ class UserProfileAPIView(generics.RetrieveAPIView):
 
     """
 
-    permission_classes = (permissions.IsAuthenticated, )
-    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (TokenAuthentication,)
     serializer_class = serializers.UserProfileSerializer
 
     def get_object(self):
         return self.request.user.userprofile
-

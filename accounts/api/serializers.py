@@ -9,19 +9,11 @@ from rest_framework.authtoken.models import Token
 
 from base import utils as base_utils
 from accounts.models import UserProfile
-from teams.models import TeamInvitation
-from teams.api.serializers import TeamSerializer
 
 User = get_user_model()
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
-
-    email = serializers.EmailField(
-        required=True,
-        label="Email Address"
-    )
-
     password = serializers.CharField(
         required=True,
         label="Password",
@@ -34,26 +26,9 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         style={'input_type': 'password'}
     )
 
-    first_name = serializers.CharField(
-        required=True
-    )
-
-    last_name = serializers.CharField(
-        required=True
-    )
-
-    invite_code = serializers.CharField(
-        required=False
-    )
-
     class Meta(object):
         model = User
-        fields = ['username', 'email', 'password', 'password_2', 'first_name', 'last_name', 'invite_code']
-
-    def validate_email(self, value):
-        if User.objects.filter(email=value).exists():
-            raise serializers.ValidationError("Email already exists.")
-        return value
+        fields = ['username', 'password', 'password_2']
 
     def validate_password(self, value):
         if len(value) < getattr(settings, 'PASSWORD_MIN_LENGTH', 8):
@@ -71,100 +46,48 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     def validate_username(self, value):
         if User.objects.filter(username=value).exists():
-            raise serializers.ValidationError("Email already exists.")
-        return value
-
-    def validate_invite_code(self, value):
-        data = self.get_initial()
-        email = data.get('email')
-        if value:
-            self.invitation = TeamInvitation.objects.validate_code(email, value)
-            if not self.invitation:
-                raise serializers.ValidationError("Invite code is not valid / expired.")
-            self.team = self.invitation.invited_by.team.last()
+            raise serializers.ValidationError("Username already exists.")
         return value
 
     def create(self, validated_data):
-        team = getattr(self, 'team', None)
 
         user_data = {
             'username': validated_data.get('username'),
-            'email': validated_data.get('email'),
-            'password': validated_data.get('password'),
-            'first_name': validated_data.get('first_name'),
-            'last_name': validated_data.get('last_name')
+            'password': validated_data.get('password')
         }
 
-        is_active = True if team else False
-
         user = UserProfile.objects.create_user_profile(
-                data=user_data,
-                is_active=is_active,
-                site=get_current_site(self.context['request']),
-                send_email=True
-            )
-
-        if team:
-            team.members.add(user)
-
-        if hasattr(self, 'invitation'):
-            TeamInvitation.objects.accept_invitation(self.invitation)
-
-        TeamInvitation.objects.decline_pending_invitations(email_ids=[validated_data.get('email')])
+            data=user_data,
+            is_active=True,
+        )
 
         return validated_data
 
 
 class UserLoginSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(required=True, write_only=True, )
 
-    username = serializers.CharField(
-        required=False,
-        allow_blank=True,
-        write_only=True,
-    )
+    token = serializers.CharField(allow_blank=True, read_only=True)
 
-    email = serializers.EmailField(
-        required=False,
-        allow_blank=True,
-        write_only=True,
-        label="Email Address"
-    )
-
-    token = serializers.CharField(
-        allow_blank=True,
-        read_only=True
-    )
-
-    password = serializers.CharField(
-        required=True,
-        write_only=True,
-        style={'input_type': 'password'}
-    )
+    password = serializers.CharField(required=True, write_only=True, style={'input_type': 'password'})
 
     class Meta(object):
         model = User
-        fields = ['email', 'username', 'password', 'token']
+        fields = ['username', 'password', 'token']
 
     def validate(self, data):
-        email = data.get('email', None)
         username = data.get('username', None)
         password = data.get('password', None)
 
-        if not email and not username:
-            raise serializers.ValidationError("Please enter username or email to login.")
+        if not username:
+            raise serializers.ValidationError("Please enter username to login.")
 
-        user = User.objects.filter(
-            Q(email=email) | Q(username=username)
-        ).exclude(
-            email__isnull=True
-        ).exclude(
-            email__iexact=''
-        ).distinct()
+        user = User.objects.filter(Q(username=username)).distinct()
 
         if user.exists() and user.count() == 1:
             user_obj = user.first()
         else:
-            raise serializers.ValidationError("This username/email is not valid.")
+            raise serializers.ValidationError("This username is not valid.")
 
         if user_obj:
             if not user_obj.check_password(password):
@@ -180,7 +103,6 @@ class UserLoginSerializer(serializers.ModelSerializer):
 
 
 class PasswordResetSerializer(serializers.Serializer):
-
     email = serializers.EmailField(
         required=True
     )
@@ -192,7 +114,6 @@ class PasswordResetSerializer(serializers.Serializer):
 
 
 class PasswordResetConfirmSerializer(serializers.Serializer):
-
     token_generator = default_token_generator
 
     def __init__(self, *args, **kwargs):
@@ -237,8 +158,7 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-
-    team = TeamSerializer(many=True)
+    # team = TeamSerializer(many=True)
 
     class Meta:
         model = User
@@ -246,10 +166,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
-
     user = UserSerializer()
 
     class Meta:
         model = UserProfile
         fields = ['user', 'has_email_verified']
-

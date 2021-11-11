@@ -1,6 +1,5 @@
 from django.conf.urls import url
 
-
 from . import views
 
 urlpatterns = [
@@ -13,10 +12,6 @@ urlpatterns = [
         views.UserRegistrationAPIView.as_view(),
         name='register'),
 
-    url(r'^verify/(?P<verification_key>.+)/$',
-        views.UserEmailVerificationAPIView.as_view(),
-        name='email_verify'),
-
     url(r'^password_reset/$',
         views.PasswordResetAPIView.as_view(),
         name='password_change'),
@@ -28,6 +23,5 @@ urlpatterns = [
     url(r'^user-profile/$',
         views.UserProfileAPIView.as_view(),
         name='user_profile'),
-
 
 ]
