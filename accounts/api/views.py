@@ -62,6 +62,7 @@ class PasswordResetAPIView(views.APIView):
     def get_user_profile(self, email):
         try:
             user_profile = UserProfile.objects.get(user__email=email)
+
         except:
             return None
         return user_profile
