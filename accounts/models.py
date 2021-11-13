@@ -1,6 +1,10 @@
+import os
 import re
 import hashlib
 import datetime
+
+from imagekit.models import ImageSpecField
+from imagekit.processors import ResizeToFill
 
 from django.contrib.auth.models import AbstractUser, PermissionsMixin, AbstractBaseUser
 from django.conf import settings
@@ -118,3 +122,5 @@ class UserProfile(base_models.TimeStampedModel):
 
 class User(AbstractUser):
     user_access = models.IntegerField(default=4)
+    is_deleted = models.BooleanField(default=False)
+    profile_pic = models.ImageField(upload_to='profile_pics', default='default.jpg')

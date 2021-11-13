@@ -1,35 +1,25 @@
-from rest_framework.exceptions import PermissionDenied
-from django.contrib.auth import get_user_model, get_user
+from django.contrib.auth import get_user_model
 from django.contrib.sites.shortcuts import get_current_site
+
 from rest_framework import generics, permissions, status, views
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
+from serializers import serializers
+from serializers.serializers import UserSerializer
 from accounts.models import UserProfile
-from . import serializers
-from accounts.api.serializers import UserSerializer
 
 User = get_user_model()
 
 
 class UserRegistrationAPIView(generics.CreateAPIView):
-    """
-    Endpoint for user registration.
-
-    """
-
     permission_classes = (permissions.AllowAny,)
     serializer_class = serializers.UserRegistrationSerializer
     queryset = User.objects.all()
 
 
 class UserLoginAPIView(views.APIView):
-    """
-    Endpoint for user login. Returns authentication token on success.
-
-    """
-
     permission_classes = (permissions.AllowAny,)
     serializer_class = serializers.UserLoginSerializer
 

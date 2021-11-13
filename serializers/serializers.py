@@ -14,23 +14,14 @@ User = get_user_model()
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(
-        required=True,
-        label="Password",
-        style={'input_type': 'password'}
-    )
-
-    password_2 = serializers.CharField(
-        required=True,
-        label="Confirm Password",
-        style={'input_type': 'password'}
-    )
-
+    password = serializers.CharField(required=True, label="Password", style={'input_type': 'password'})
+    password_2 = serializers.CharField(required=True, label="Confirm Password", style={'input_type': 'password'})
     user_access = serializers.IntegerField(required=False, default=4, min_value=1, max_value=4)
+    profile_pic = serializers.ImageField(required=False, default='default.jpg')
 
     class Meta(object):
         model = User
-        fields = ['username', 'password', 'password_2', 'user_access']
+        fields = ['username', 'password', 'password_2', 'user_access', 'profile_pic']
 
     def validate_password(self, value):
         if len(value) < getattr(settings, 'PASSWORD_MIN_LENGTH', 8):
@@ -56,7 +47,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         user_data = {
             'username': validated_data.get('username'),
             'password': validated_data.get('password'),
-            'user_access': validated_data.get('user_access')
+            'user_access': validated_data.get('user_access'),
+            'profile_pic': validated_data.get('profile_pic')
         }
 
         user = UserProfile.objects.create_user_profile(
@@ -163,7 +155,7 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['pk'',username', 'user_access', 'date_joined', 'is_active']
+        fields = ['pk', 'username', 'user_access', 'date_joined', 'is_active', 'profile_pic']
 
 
 class UserProfileSerializer(serializers.ModelSerializer):

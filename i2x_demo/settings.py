@@ -38,6 +38,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework.authtoken',
+    'imagekit',
     'accounts',
 
 ]
@@ -105,7 +106,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Iran'
 
 USE_I18N = True
 
@@ -118,14 +119,14 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'ef.jamshidi017@gmail.com'
-EMAIL_HOST_PASSWORD = 'Firmino12'
-DEFAULT_FROM_EMAIL = "ef.jamshidi017@gmail.com"
-EMAIL_PORT = 587
-
-VERIFICATION_KEY_EXPIRY_DAYS = 2
+# EMAIL_USE_TLS = True
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_HOST_USER = 'ef.jamshidi017@gmail.com'
+# EMAIL_HOST_PASSWORD = ''
+# DEFAULT_FROM_EMAIL = "ef.jamshidi017@gmail.com"
+# EMAIL_PORT = 587
+#
+# VERIFICATION_KEY_EXPIRY_DAYS = 2
 
 SITE_NAME = "i2x Demo"
 
@@ -135,3 +136,6 @@ except ImportError:
     pass
 
 AUTH_USER_MODEL = 'accounts.User'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
