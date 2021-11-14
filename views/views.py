@@ -92,5 +92,5 @@ class UserDelete(generics.DestroyAPIView):
         return Response("deleted successfully")
 
 
-class UserLogout():
+class UserLogout(generics.GenericAPIView):
     pass
