@@ -6,9 +6,12 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.response import Response
 
+from filters.user_filter import UserFilter
 from serializers import serializers
 from serializers.serializers import UserSerializer
 from accounts.models import UserProfile
+
+from django_filters import rest_framework as filters
 
 User = get_user_model()
 
@@ -24,76 +27,19 @@ class UserLoginAPIView(views.APIView):
     serializer_class = serializers.UserLoginSerializer
 
     def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            return Response(serializer.data, status=status.HTTP_200_OK)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class PasswordResetAPIView(views.APIView):
-    """
-    Endpoint to send email to user with password reset link.
-
-    """
-
-    permission_classes = (permissions.AllowAny,)
-    serializer_class = serializers.PasswordResetSerializer
-
-    def post(self, request):
-        user_profile = self.get_user_profile(request.data.get('email'))
-        if user_profile:
-            user_profile.send_password_reset_email(
-                site=get_current_site(request)
-            )  # To be made asynchronous in production
-            return Response(status=status.HTTP_200_OK)
-
-        # Forcing Http status to 200 even if failure to support user privacy.
-        # Will show message at frontend like "If the email is valid, you must have received password reset email"
-        return Response(status=status.HTTP_200_OK)
-
-    def get_user_profile(self, email):
         try:
-            user_profile = UserProfile.objects.get(user__email=email)
-
+            user = User.objects.get(username=request.data['username'])
         except:
-            return None
-        return user_profile
+            PermissionDenied
 
-
-class PasswordResetConfirmView(views.APIView):
-    """
-    Endpoint to change user password.
-
-    """
-
-    permission_classes = (permissions.AllowAny,)
-    serializer_class = serializers.PasswordResetConfirmSerializer
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(
-            data=request.data,
-            context={
-                'uidb64': kwargs['uidb64'],
-                'token': kwargs['token']
-            })
-
-        if serializer.is_valid(raise_exception=True):
-            new_password = serializer.validated_data.get('new_password')
-            user = serializer.user
-            user.set_password(new_password)
-            user.save()
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid(raise_exception=True) and not user.is_deleted:
             return Response(serializer.data, status=status.HTTP_200_OK)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            raise PermissionDenied
 
 
 class UserProfileAPIView(generics.RetrieveAPIView):
-    """
-    Endpoint to retrieve user profile.
-
-    """
-
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (TokenAuthentication,)
     serializer_class = serializers.UserSerializer
@@ -103,7 +49,17 @@ class UserProfileAPIView(generics.RetrieveAPIView):
 
 
 class UserModify(generics.UpdateAPIView):
-    pass
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (TokenAuthentication,)
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def put(self, request, pk, *args, **kwargs):
+        user = self.request.user
+        if user.pk == pk:
+            return self.update(request, *args, **kwargs)
+        else:
+            raise PermissionDenied
 
 
 class UserList(generics.ListAPIView):
@@ -111,13 +67,15 @@ class UserList(generics.ListAPIView):
     authentication_classes = (TokenAuthentication,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = UserFilter
 
     def get(self, request, *args, **kwargs):
         user = self.request.user
         if user.user_access == 1:
             return self.list(request, *args, **kwargs)
         else:
-            raise PermissionDenied()
+            raise PermissionDenied
 
 
 class UserDelete(generics.DestroyAPIView):
@@ -125,6 +83,13 @@ class UserDelete(generics.DestroyAPIView):
     serializer_class = serializers.UserSerializer
     authentication_classes = (TokenAuthentication,)
     queryset = User.objects.all()
+
+    def delete(self, request, *args, **kwargs):
+        user = self.request.user
+        user.is_deleted = True
+        user.save()
+
+        return Response("deleted successfully")
 
 
 class UserLogout(generics.GenericAPIView):

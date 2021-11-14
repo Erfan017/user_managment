@@ -23,6 +23,12 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = ['username', 'password', 'password_2', 'user_access', 'profile_pic']
 
+        extra_kwargs = {
+            'security_question': {'write_only': True},
+            'security_question_answer': {'write_only': True},
+            'password': {'write_only': True}
+        }
+
     def validate_password(self, value):
         if len(value) < getattr(settings, 'PASSWORD_MIN_LENGTH', 8):
             raise serializers.ValidationError(
@@ -155,7 +161,7 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['pk', 'username', 'user_access', 'date_joined', 'is_active', 'profile_pic']
+        fields = ['username', 'user_access', 'date_joined', 'is_active', 'profile_pic', 'is_deleted']
 
 
 class UserProfileSerializer(serializers.ModelSerializer):

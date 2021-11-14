@@ -6,5 +6,5 @@ from i2x_demo import settings
 
 urlpatterns = [
                   url(r'^admin/', admin.site.urls),
-                  url(r'^api/accounts/', include('accounts.api.urls')),
+                  url(r'^urls/accounts/', include('accounts.urls.urls')),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
