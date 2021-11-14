@@ -1,4 +1,4 @@
-FROM python:3.11
+FROM python:3.11-rc-bullseye
 ENV PYTHONUNBUFFERED 1
 RUN git clone https://github.com/Erfan017/user_managment.git /drf_src
 WORKDIR /drf_src
