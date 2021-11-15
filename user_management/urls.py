@@ -2,7 +2,7 @@ from django.conf.urls import url, include
 from django.conf.urls.static import static
 from django.contrib import admin
 
-from i2x_demo import settings
+from user_management import settings
 from django.conf.urls import url
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -13,9 +13,9 @@ from rest_framework import permissions
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Bina admin API",
+        title="user managment API",
         default_version='v1',
-        description="Bina admin API",
+        description="user managment API",
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),

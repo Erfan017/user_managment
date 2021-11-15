@@ -1,10 +1,6 @@
-import re
-import datetime
-
-from django.contrib.auth.models import AbstractUser, PermissionsMixin, AbstractBaseUser
+from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from django.db import models, transaction
-from django.utils import timezone
 from django.contrib.auth.tokens import default_token_generator
 
 token_generator = default_token_generator

@@ -1,15 +1,13 @@
 from django.contrib.auth import get_user_model
-from django.contrib.sites.shortcuts import get_current_site
 
 from rest_framework import generics, permissions, status, views
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.response import Response
 
-from filters.user_filter import UserFilter
-from serializers import serializers
-from serializers.serializers import UserSerializer
-from accounts.models import UserProfile
+from accounts.filters.user_filter import UserFilter
+from accounts.serializers import serializers
+from accounts.serializers.serializers import UserSerializer
 
 from django_filters import rest_framework as filters
 
