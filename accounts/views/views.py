@@ -1,10 +1,13 @@
+import binascii
+import os
+
 from django.contrib.auth import get_user_model
 
 from rest_framework import generics, permissions, status, views
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.response import Response
-
+from rest_framework.authtoken.models import Token
 from accounts.filters.user_filter import UserFilter
 from accounts.serializers import serializers
 from accounts.serializers.serializers import UserSerializer
@@ -86,7 +89,7 @@ class UserDelete(generics.DestroyAPIView):
         user = self.request.user
         user.is_deleted = True
         user.save()
-
+        Token.objects.update(key=binascii.hexlify(os.urandom(20)).decode())
         return Response("deleted successfully")
 
 
