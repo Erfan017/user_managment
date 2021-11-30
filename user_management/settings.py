@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django_filters',
 
     'drf_yasg',
+    'drf_api_logger',
 
 ]
 
@@ -59,6 +60,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'drf_api_logger.middleware.api_logger_middleware.APILoggerMiddleware',
 ]
 
 ROOT_URLCONF = 'user_management.urls'
@@ -137,3 +140,5 @@ AUTH_USER_MODEL = 'accounts.User'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+DRF_API_LOGGER_DATABASE = True

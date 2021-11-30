@@ -1,6 +1,6 @@
 import binascii
 import os
-
+import logging
 from django.contrib.auth import get_user_model
 
 from rest_framework import generics, permissions, status, views
